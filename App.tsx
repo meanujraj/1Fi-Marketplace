@@ -122,11 +122,21 @@ export default function App() {
 const styles = StyleSheet.create({
   safeArea: {
     flex: 1,
-    backgroundColor: '#FFFFFF',
+    backgroundColor: '#F3F4F6',
     paddingTop: StatusBar.currentHeight || 0,
+    alignItems: 'center',
+    justifyContent: 'center',
   },
   appContainer: {
     flex: 1,
+    width: '100%',
+    maxWidth: 480,
     backgroundColor: Colors.background,
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.08,
+    shadowRadius: 16,
+    elevation: 4,
+    overflow: 'hidden',
   },
 });

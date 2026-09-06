@@ -9,6 +9,8 @@ import {
   Image,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { MOCK_PRODUCTS } from '../data/mockProducts';
+import { ProductCard } from '../components/ProductCard';
 import { Colors } from '../theme/colors';
 
 interface ShopScreenProps {
@@ -22,6 +24,17 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 }) => {
   const [activeTab, setActiveTab] = useState<'topBrands' | 'nearbyStores' | 'marketplace'>('marketplace');
   const [searchQuery, setSearchQuery] = useState('');
+  const [brandFilter, setBrandFilter] = useState<string>('All');
+
+  const filteredProducts = MOCK_PRODUCTS.filter((p) => {
+    const matchesBrand = brandFilter === 'All' || p.brand.toLowerCase() === brandFilter.toLowerCase();
+    const matchesSearch =
+      !searchQuery.trim() ||
+      p.name.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+      p.brand.toLowerCase().includes(searchQuery.toLowerCase().trim()) ||
+      (p.exactModel && p.exactModel.toLowerCase().includes(searchQuery.toLowerCase().trim()));
+    return matchesBrand && matchesSearch;
+  });
 
   return (
     <View style={styles.container}>
@@ -218,63 +231,62 @@ export const ShopScreen: React.FC<ShopScreenProps> = ({
 
         {activeTab === 'marketplace' && (
           <View style={styles.tabSection}>
-            {/* Direct Gateway to full Marketplace */}
-            <TouchableOpacity
-              style={styles.featuredMarketCard}
-              onPress={onNavigateToMarketplace}
-              activeOpacity={0.88}
-            >
-              <View style={styles.featuredMarketContent}>
-                <View style={styles.featuredMarketLeft}>
-                  <View style={styles.verifiedRow}>
-                    <Ionicons name="shield-checkmark" size={14} color={Colors.primary} />
-                    <Text style={styles.verifiedText}>OFFICIAL 1FI MARKETPLACE</Text>
-                  </View>
-                  <Text style={styles.featuredMarketHeading}>
-                    Browse Flagship Electronics
-                  </Text>
-                  <Text style={styles.featuredMarketSub}>
-                    Apple, Samsung, Sony & OnePlus with 0% No-Cost EMI
-                  </Text>
-                  <View style={styles.exploreButton}>
-                    <Text style={styles.exploreButtonText}>Open Marketplace</Text>
-                    <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
-                  </View>
-                </View>
-              </View>
-            </TouchableOpacity>
-
-            {/* Quick Product Grid Preview */}
-            <View style={styles.previewHeaderRow}>
-              <Text style={styles.sectionHeaderTitle}>Featured on 1Fi</Text>
-              <TouchableOpacity onPress={onNavigateToMarketplace}>
-                <Text style={styles.seeAllText}>View All →</Text>
-              </TouchableOpacity>
+            {/* Search Box */}
+            <View style={styles.searchBox}>
+              <Ionicons name="search-outline" size={18} color={Colors.textMuted} />
+              <TextInput
+                style={styles.searchInput}
+                placeholder="Search products, brands or models..."
+                placeholderTextColor={Colors.textMuted}
+                value={searchQuery}
+                onChangeText={setSearchQuery}
+              />
+              {searchQuery.length > 0 && (
+                <TouchableOpacity onPress={() => setSearchQuery('')}>
+                  <Ionicons name="close-circle" size={18} color={Colors.textMuted} />
+                </TouchableOpacity>
+              )}
             </View>
 
-            {[
-              { id: 'prod-iphone-16-pro', name: 'iPhone 16 Pro', emi: 'From ₹19,983/mo (0% EMI)', price: '₹1,19,900', brand: 'Apple' },
-              { id: 'prod-samsung-s25-ultra', name: 'Galaxy S25 Ultra 5G', emi: 'From ₹21,667/mo (0% EMI)', price: '₹1,29,999', brand: 'Samsung' },
-              { id: 'prod-sony-wh1000xm5', name: 'Sony WH-1000XM5', emi: 'From ₹4,998/mo (0% EMI)', price: '₹29,990', brand: 'Sony' },
-            ].map((prod) => (
-              <TouchableOpacity
+            {/* Quick Brand Pills */}
+            <View style={styles.shopBrandsRow}>
+              {['All', 'Apple', 'Samsung', 'OnePlus'].map((b) => (
+                <TouchableOpacity
+                  key={b}
+                  style={[
+                    styles.shopBrandChip,
+                    brandFilter === b && styles.shopBrandChipActive,
+                  ]}
+                  onPress={() => setBrandFilter(b)}
+                  activeOpacity={0.7}
+                >
+                  <Text
+                    style={[
+                      styles.shopBrandText,
+                      brandFilter === b && styles.shopBrandTextActive,
+                    ]}
+                  >
+                    {b === 'All' ? 'All Brands' : b}
+                  </Text>
+                </TouchableOpacity>
+              ))}
+            </View>
+
+            {/* Section Header */}
+            <View style={styles.previewHeaderRow}>
+              <Text style={styles.sectionHeaderTitle}>Featured Smartphones</Text>
+              <Text style={styles.seeAllText}>
+                {filteredProducts.length} models • 0% EMI
+              </Text>
+            </View>
+
+            {/* Real 9 Product Cards */}
+            {filteredProducts.map((prod) => (
+              <ProductCard
                 key={prod.id}
-                style={styles.quickProductCard}
+                product={prod}
                 onPress={() => onSelectProduct(prod.id)}
-                activeOpacity={0.8}
-              >
-                <View style={styles.quickProductInfo}>
-                  <Text style={styles.quickBrand}>{prod.brand}</Text>
-                  <Text style={styles.quickName}>{prod.name}</Text>
-                  <Text style={styles.quickEmi}>{prod.emi}</Text>
-                </View>
-                <View style={styles.quickPriceWrap}>
-                  <Text style={styles.quickPrice}>{prod.price}</Text>
-                  <View style={styles.quickSelectBtn}>
-                    <Text style={styles.quickSelectText}>Select</Text>
-                  </View>
-                </View>
-              </TouchableOpacity>
+              />
             ))}
           </View>
         )}
@@ -606,56 +618,31 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: Colors.primary,
   },
-  quickProductCard: {
-    backgroundColor: '#FFFFFF',
-    borderRadius: 14,
-    padding: 14,
+  shopBrandsRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    justifyContent: 'space-between',
-    marginBottom: 10,
+    marginBottom: 14,
+    gap: 8,
+  },
+  shopBrandChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 7,
+    borderRadius: 20,
+    backgroundColor: '#FFFFFF',
     borderWidth: 1,
-    borderColor: Colors.border,
+    borderColor: '#E5E7EB',
   },
-  quickProductInfo: {
-    flex: 1,
+  shopBrandChipActive: {
+    backgroundColor: '#712CDC',
+    borderColor: '#712CDC',
   },
-  quickBrand: {
-    fontSize: 10,
-    fontWeight: '700',
-    color: Colors.textSecondary,
-    textTransform: 'uppercase',
+  shopBrandText: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '600',
   },
-  quickName: {
-    fontSize: 14,
-    fontWeight: '700',
-    color: Colors.text,
-    marginVertical: 2,
-  },
-  quickEmi: {
-    fontSize: 11,
-    fontWeight: '700',
-    color: Colors.tealDark,
-  },
-  quickPriceWrap: {
-    alignItems: 'flex-end',
-    marginLeft: 12,
-  },
-  quickPrice: {
-    fontSize: 14,
-    fontWeight: '800',
-    color: Colors.text,
-    marginBottom: 6,
-  },
-  quickSelectBtn: {
-    backgroundColor: '#EEF0FD',
-    paddingHorizontal: 12,
-    paddingVertical: 5,
-    borderRadius: 8,
-  },
-  quickSelectText: {
-    color: Colors.primary,
-    fontSize: 11,
+  shopBrandTextActive: {
+    color: '#FFFFFF',
     fontWeight: '700',
   },
 });

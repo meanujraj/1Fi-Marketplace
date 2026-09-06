@@ -316,6 +316,12 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           keyExtractor={(item) => item.id}
           contentContainerStyle={styles.productsList}
           showsVerticalScrollIndicator={false}
+          ListHeaderComponent={
+            <View style={styles.listHeaderRow}>
+              <Text style={styles.featuredTitle}>Featured Products</Text>
+              <Text style={styles.productsCountText}>({products.length} smartphones)</Text>
+            </View>
+          }
           refreshControl={
             <RefreshControl
               refreshing={refreshing}
@@ -609,6 +615,22 @@ const styles = StyleSheet.create({
   productsList: {
     padding: 16,
     paddingBottom: 32,
+  },
+  listHeaderRow: {
+    flexDirection: 'row',
+    alignItems: 'baseline',
+    justifyContent: 'space-between',
+    marginBottom: 12,
+  },
+  featuredTitle: {
+    fontSize: 16,
+    fontWeight: '800',
+    color: '#111827',
+  },
+  productsCountText: {
+    fontSize: 12,
+    color: '#6B7280',
+    fontWeight: '600',
   },
   centerState: {
     flex: 1,
