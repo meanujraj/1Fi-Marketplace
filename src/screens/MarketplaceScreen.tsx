@@ -101,29 +101,8 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
     setSelectedPriceRange('All');
   };
 
-  return (
-    <View style={styles.container}>
-      {/* Header with official logo & simulator test toggle */}
-      <Header
-        title="1Fi Marketplace"
-        subtitle="Exclusive credit line & flexible EMI"
-        onBack={onBack}
-        rightAction={
-          <TouchableOpacity
-            style={styles.errorToggleBtn}
-            onPress={toggleErrorSimulation}
-            activeOpacity={0.7}
-            accessibilityLabel="Test Error State"
-          >
-            <Ionicons
-              name={simulateErrorActive ? 'warning' : 'bug-outline'}
-              size={18}
-              color={simulateErrorActive ? Colors.danger : Colors.textMuted}
-            />
-          </TouchableOpacity>
-        }
-      />
-
+  const renderHeaderFilters = () => (
+    <View style={styles.topFilterSection}>
       {/* Search Bar & Filter Action */}
       <View style={styles.searchSection}>
         <View style={styles.searchBar}>
@@ -258,48 +237,68 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           </TouchableOpacity>
         </View>
       )}
+    </View>
+  );
+
+  return (
+    <View style={styles.container}>
+      {/* Header */}
+      <Header
+        title="Explore Marketplace"
+        subtitle="Exclusive credit line & flexible EMI"
+        onBack={onBack}
+      />
 
       {/* Main Content Area */}
       {loading && !refreshing ? (
-        <View style={styles.centerState}>
-          <ActivityIndicator size="large" color={Colors.tealDark} />
-          <Text style={styles.loadingText}>Loading curated 1Fi products...</Text>
+        <View style={styles.container}>
+          {renderHeaderFilters()}
+          <View style={styles.centerState}>
+            <ActivityIndicator size="large" color={Colors.tealDark} />
+            <Text style={styles.loadingText}>Loading products...</Text>
+          </View>
         </View>
       ) : error ? (
-        <View style={styles.centerState}>
-          <View style={styles.errorIconCircle}>
-            <Ionicons name="alert-circle-outline" size={44} color={Colors.danger} />
+        <View style={styles.container}>
+          {renderHeaderFilters()}
+          <View style={styles.centerState}>
+            <View style={styles.errorIconCircle}>
+              <Ionicons name="alert-circle-outline" size={44} color={Colors.danger} />
+            </View>
+            <Text style={styles.errorTitle}>Unable to load products</Text>
+            <Text style={styles.errorSubtitle}>{error}</Text>
+            <TouchableOpacity
+              style={styles.retryButton}
+              onPress={() => {
+                marketplaceRepository.setSimulateError(false);
+                setSimulateErrorActive(false);
+                setLoading(true);
+                loadProducts();
+              }}
+              activeOpacity={0.8}
+            >
+              <Ionicons name="refresh" size={16} color="#FFFFFF" />
+              <Text style={styles.retryText}>Try Again</Text>
+            </TouchableOpacity>
           </View>
-          <Text style={styles.errorTitle}>Unable to load products</Text>
-          <Text style={styles.errorSubtitle}>{error}</Text>
-          <TouchableOpacity
-            style={styles.retryButton}
-            onPress={() => {
-              marketplaceRepository.setSimulateError(false);
-              setSimulateErrorActive(false);
-              setLoading(true);
-              loadProducts();
-            }}
-            activeOpacity={0.8}
-          >
-            <Ionicons name="refresh" size={16} color="#FFFFFF" />
-            <Text style={styles.retryText}>Try Again</Text>
-          </TouchableOpacity>
         </View>
       ) : products.length === 0 ? (
-        <View style={styles.centerState}>
-          <Ionicons name="search" size={44} color={Colors.textMuted} />
-          <Text style={styles.emptyTitle}>No products found</Text>
-          <Text style={styles.emptySubtitle}>
-            Try checking spelling or reset your filters.
-          </Text>
-          <TouchableOpacity
-            style={styles.clearFilterBtn}
-            onPress={handleResetFilters}
-          >
-            <Text style={styles.clearFilterText}>Clear Search & Filters</Text>
-          </TouchableOpacity>
-        </View>
+        <ScrollView contentContainerStyle={styles.emptyScrollContent}>
+          {renderHeaderFilters()}
+          <View style={styles.centerState}>
+            <Ionicons name="search" size={44} color={Colors.textMuted} />
+            <Text style={styles.emptyTitle}>No products found</Text>
+            <Text style={styles.emptySubtitle}>
+              Try checking spelling or reset your filters.
+            </Text>
+            <TouchableOpacity
+              style={styles.clearFilterBtn}
+              onPress={handleResetFilters}
+            >
+              <Text style={styles.clearFilterText}>Clear Search & Filters</Text>
+            </TouchableOpacity>
+          </View>
+        </ScrollView>
       ) : (
         <FlatList
           data={products}
@@ -307,9 +306,12 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           contentContainerStyle={styles.productsList}
           showsVerticalScrollIndicator={false}
           ListHeaderComponent={
-            <View style={styles.listHeaderRow}>
-              <Text style={styles.featuredTitle}>Featured Products</Text>
-              <Text style={styles.productsCountText}>({products.length} smartphones)</Text>
+            <View>
+              {renderHeaderFilters()}
+              <View style={styles.listHeaderRow}>
+                <Text style={styles.featuredTitle}>Featured Products</Text>
+                <Text style={styles.productsCountText}>({products.length} products)</Text>
+              </View>
             </View>
           }
           refreshControl={
@@ -602,9 +604,18 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     marginLeft: 4,
   },
+  topFilterSection: {
+    backgroundColor: Colors.background,
+    paddingBottom: 8,
+  },
+  emptyScrollContent: {
+    flexGrow: 1,
+    paddingBottom: 110,
+  },
   productsList: {
-    padding: 16,
-    paddingBottom: 32,
+    paddingHorizontal: 16,
+    paddingTop: 8,
+    paddingBottom: 110,
   },
   listHeaderRow: {
     flexDirection: 'row',

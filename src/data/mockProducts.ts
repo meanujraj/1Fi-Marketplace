@@ -18,7 +18,7 @@ export const MOCK_PRODUCTS: Product[] = [
     startingEmiLabel: 'EMI starts at ₹2,860/month',
     rating: 4.6,
     reviewCount: 4320,
-    badge: 'Amazon Choice',
+    badge: 'Popular',
     category: 'Smartphones',
     tagline: 'Dynamic Island, 48MP Main camera and USB-C in durable design',
     images: [
@@ -86,8 +86,6 @@ export const MOCK_PRODUCTS: Product[] = [
     tagline: 'Grade 5 Titanium design with Camera Control and A18 Pro chip',
     images: [
       require('../../assets/products/apple/iphone16pro/main.png'),
-      require('../../assets/products/apple/iphone16pro/back.png'),
-      require('../../assets/products/apple/iphone16pro/front.png'),
     ],
     colors: [
       { id: 'black-titanium', name: 'Black Titanium', hex: '#3C3B37' },
@@ -397,7 +395,6 @@ export const MOCK_PRODUCTS: Product[] = [
     tagline: 'Snapdragon 8 Elite, 6000mAh Glacier battery, Hasselblad Master Camera',
     images: [
       require('../../assets/products/oneplus/oneplus13/main.png'),
-      require('../../assets/products/oneplus/oneplus13/back.png'),
     ],
     colors: [
       { id: 'arctic-dawn', name: 'Arctic Dawn', hex: '#F0F2F5' },

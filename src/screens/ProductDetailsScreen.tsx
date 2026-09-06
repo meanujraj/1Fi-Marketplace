@@ -220,9 +220,9 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
 
           {product.asin && (
             <View style={styles.amazonSourceRow}>
-              <Ionicons name="cart-outline" size={14} color={Colors.primary} />
+              <Ionicons name="shield-checkmark-outline" size={14} color={Colors.primary} />
               <Text style={styles.amazonSourceText}>
-                Amazon India ASIN: {product.asin} • Genuine Verified Specs
+                Item SKU: {product.asin} • Genuine Verified Specs
               </Text>
             </View>
           )}
@@ -240,7 +240,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
           />
         </View>
 
-        {/* Technical Specifications (Amazon Overview) */}
+        {/* Technical Specifications */}
         <View style={styles.card}>
           <Text style={styles.cardTitle}>Device Specifications</Text>
           <View style={styles.specGrid}>
@@ -267,7 +267,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
           </View>
         </View>
 
-        {/* About this item (Amazon India Product Highlights) */}
+        {/* About this item */}
         {product.aboutThisItem && product.aboutThisItem.length > 0 && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>About this item</Text>
@@ -282,7 +282,7 @@ export const ProductDetailsScreen: React.FC<ProductDetailsScreenProps> = ({
           </View>
         )}
 
-        {/* Full Amazon Technical Details Table */}
+        {/* Full Technical Details Table */}
         {product.technicalDetails && (
           <View style={styles.card}>
             <Text style={styles.cardTitle}>Technical Details</Text>

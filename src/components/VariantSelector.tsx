@@ -90,18 +90,6 @@ export const VariantSelector: React.FC<VariantSelectorProps> = ({
                 >
                   {opt.label}
                 </Text>
-                {opt.priceDelta > 0 ? (
-                  <Text
-                    style={[
-                      styles.storageDelta,
-                      isSelected && styles.storageDeltaSelected,
-                    ]}
-                  >
-                    +₹{opt.priceDelta.toLocaleString('en-IN')}
-                  </Text>
-                ) : (
-                  <Text style={styles.storageDeltaBase}>Base model</Text>
-                )}
               </TouchableOpacity>
             );
           })}
@@ -176,14 +164,14 @@ const styles = StyleSheet.create({
     gap: 10,
   },
   storageCard: {
-    flex: 1,
-    minWidth: '45%',
-    padding: 12,
-    borderRadius: 12,
+    paddingVertical: 10,
+    paddingHorizontal: 18,
+    borderRadius: 20,
     backgroundColor: Colors.cardBg,
     borderWidth: 1.5,
     borderColor: Colors.border,
     alignItems: 'center',
+    justifyContent: 'center',
   },
   storageCardSelected: {
     borderColor: Colors.tealDark,
@@ -193,23 +181,10 @@ const styles = StyleSheet.create({
     fontSize: 13,
     fontWeight: '600',
     color: Colors.text,
-    marginBottom: 4,
     textAlign: 'center',
   },
   storageLabelSelected: {
     color: Colors.tealDark,
-    fontWeight: '800',
-  },
-  storageDelta: {
-    fontSize: 11,
-    color: Colors.textSecondary,
-  },
-  storageDeltaSelected: {
-    color: Colors.tealDark,
-    fontWeight: '600',
-  },
-  storageDeltaBase: {
-    fontSize: 11,
-    color: Colors.textMuted,
+    fontWeight: '700',
   },
 });
