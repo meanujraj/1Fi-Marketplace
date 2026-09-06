@@ -41,11 +41,11 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
     >
       <View style={styles.overlay}>
         <View style={styles.modalCard}>
-          <ScrollView showsVerticalScrollIndicator={false}>
+          <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollBody}>
             {/* Header Icon */}
             <View style={styles.iconContainer}>
               <View style={styles.iconCircle}>
-                <Ionicons name="checkmark-circle" size={56} color={Colors.tealDark} />
+                <Ionicons name="checkmark" size={32} color="#059669" />
               </View>
             </View>
 
@@ -106,20 +106,20 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
 
             {/* 1Fi Trust Banner */}
             <View style={styles.trustBanner}>
-              <Ionicons name="shield-checkmark" size={18} color={Colors.tealDark} />
+              <Ionicons name="shield-checkmark" size={16} color="#059669" />
               <Text style={styles.trustText}>
                 Backed by 1Fi RBI-regulated Lending Partners. No hidden charges.
               </Text>
             </View>
 
-            {/* Action Buttons */}
+            {/* Rounded-Full Action Button */}
             <TouchableOpacity
               style={styles.confirmButton}
               onPress={onClose}
-              activeOpacity={0.85}
+              activeOpacity={0.88}
             >
               <Text style={styles.confirmButtonText}>Back to Marketplace</Text>
-              <Ionicons name="arrow-forward" size={18} color="#FFFFFF" />
+              <Ionicons name="arrow-forward" size={16} color="#FFFFFF" />
             </TouchableOpacity>
           </ScrollView>
         </View>
@@ -131,51 +131,66 @@ export const OrderSuccessModal: React.FC<OrderSuccessModalProps> = ({
 const styles = StyleSheet.create({
   overlay: {
     flex: 1,
-    backgroundColor: 'rgba(10, 37, 64, 0.7)',
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
     justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   modalCard: {
-    backgroundColor: Colors.cardBg,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     paddingHorizontal: 20,
     paddingTop: 24,
-    paddingBottom: 36,
+    paddingBottom: 32,
     maxHeight: '90%',
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
+    shadowColor: '#000000',
+    shadowOffset: { width: 0, height: -4 },
+    shadowOpacity: 0.12,
+    shadowRadius: 20,
+    elevation: 10,
+  },
+  scrollBody: {
+    paddingBottom: 8,
   },
   iconContainer: {
     alignItems: 'center',
     marginBottom: 12,
   },
   iconCircle: {
-    width: 72,
-    height: 72,
-    borderRadius: 36,
-    backgroundColor: Colors.tealLight,
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: '#DEF7EC',
+    borderWidth: 1,
+    borderColor: '#BCF0DA',
     alignItems: 'center',
     justifyContent: 'center',
   },
   successTitle: {
-    fontSize: 22,
-    fontWeight: '800',
-    color: Colors.text,
+    fontSize: 20,
+    fontWeight: '700',
+    color: '#18181B',
     textAlign: 'center',
-    marginBottom: 6,
+    marginBottom: 4,
   },
   successSubtitle: {
-    fontSize: 13,
-    color: Colors.textSecondary,
+    fontSize: 12.5,
+    color: '#71717A',
     textAlign: 'center',
-    marginBottom: 20,
+    marginBottom: 16,
     lineHeight: 18,
+    paddingHorizontal: 10,
   },
   summaryCard: {
-    backgroundColor: Colors.background,
-    borderRadius: 14,
-    borderWidth: 1,
-    borderColor: Colors.border,
+    backgroundColor: '#F5F5F7',
+    borderRadius: 16,
+    borderWidth: 0.8,
+    borderColor: '#E4E4E7',
     padding: 14,
-    marginBottom: 16,
+    marginBottom: 14,
   },
   summaryRow: {
     flexDirection: 'row',
@@ -183,52 +198,56 @@ const styles = StyleSheet.create({
     paddingVertical: 5,
   },
   label: {
-    fontSize: 13,
-    color: Colors.textSecondary,
+    fontSize: 12.5,
+    color: '#71717A',
   },
   value: {
-    fontSize: 13,
+    fontSize: 12.5,
     fontWeight: '600',
-    color: Colors.text,
+    color: '#18181B',
   },
   valueBold: {
-    fontSize: 13,
-    fontWeight: '800',
-    color: Colors.primary,
+    fontSize: 12.5,
+    fontWeight: '700',
+    color: '#712CDC',
   },
   emiHighlight: {
-    fontSize: 16,
+    fontSize: 15,
     fontWeight: '800',
-    color: Colors.tealDark,
+    color: '#712CDC',
   },
   greenText: {
-    color: Colors.tealDark,
+    color: '#059669',
     fontWeight: '700',
   },
   divider: {
-    height: 1,
-    backgroundColor: Colors.border,
+    height: 0.8,
+    backgroundColor: '#E4E4E7',
     marginVertical: 6,
   },
   trustBanner: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: Colors.tealLight,
-    padding: 10,
-    borderRadius: 10,
-    marginBottom: 20,
+    backgroundColor: '#ECFDF5',
+    borderWidth: 0.8,
+    borderColor: '#D1FAE5',
+    paddingHorizontal: 12,
+    paddingVertical: 9,
+    borderRadius: 12,
+    marginBottom: 16,
     gap: 8,
   },
   trustText: {
     fontSize: 11,
-    color: '#0D624D',
+    color: '#065F46',
     flex: 1,
     fontWeight: '500',
+    lineHeight: 15,
   },
   confirmButton: {
-    backgroundColor: Colors.primary,
-    height: 52,
-    borderRadius: 12,
+    backgroundColor: '#712CDC',
+    height: 48,
+    borderRadius: 9999,
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
@@ -236,7 +255,7 @@ const styles = StyleSheet.create({
   },
   confirmButtonText: {
     color: '#FFFFFF',
-    fontSize: 15,
+    fontSize: 14,
     fontWeight: '700',
   },
 });

@@ -698,14 +698,18 @@ const styles = StyleSheet.create({
   // Slide-up Filter Modal
   modalOverlay: {
     flex: 1,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    backgroundColor: 'rgba(15, 23, 42, 0.65)',
     justifyContent: 'flex-end',
+    alignItems: 'center',
   },
   filterSheet: {
-    backgroundColor: Colors.cardBg,
+    backgroundColor: '#FFFFFF',
     borderTopLeftRadius: 24,
     borderTopRightRadius: 24,
     maxHeight: '75%',
+    width: '100%',
+    maxWidth: 480,
+    alignSelf: 'center',
     paddingBottom: 24,
   },
   sheetHeader: {
