@@ -1,0 +1,30 @@
+# Agent configs and skills
+.agents/
+
+# Dependencies
+node_modules/
+.expo/
+dist/
+
+# Environment files & Secrets
+.env
+.env.*
+*.env
+*.pem
+*.key
+*.keystore
+*.jks
+*.p8
+credentials.json
+google-services.json
+
+# Logs
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+
+# Editor & OS files
+.DS_Store
+Thumbs.db
+.vscode/
+.idea/
