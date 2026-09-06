@@ -1,5 +1,5 @@
 import React from 'react';
-import { View, Text, StyleSheet, TouchableOpacity } from 'react-native';
+import { View, Text, StyleSheet, TouchableOpacity, Image } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Colors } from '../theme/colors';
 
@@ -29,9 +29,11 @@ export const Header: React.FC<HeaderProps> = ({
             <Ionicons name="arrow-back" size={22} color={Colors.primary} />
           </TouchableOpacity>
         ) : (
-          <View style={styles.logoBadge}>
-            <Text style={styles.logoText}>1Fi</Text>
-          </View>
+          <Image
+            source={require('../../assets/logo.png')}
+            style={styles.logoImage}
+            resizeMode="contain"
+          />
         )}
 
         <View style={styles.titleContainer}>
@@ -73,6 +75,12 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     marginRight: 12,
+  },
+  logoImage: {
+    width: 32,
+    height: 32,
+    borderRadius: 8,
+    marginRight: 10,
   },
   logoBadge: {
     backgroundColor: Colors.primary,

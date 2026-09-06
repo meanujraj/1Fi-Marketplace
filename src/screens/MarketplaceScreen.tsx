@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import {
   View,
   Text,
@@ -8,6 +8,8 @@ import {
   TouchableOpacity,
   ActivityIndicator,
   RefreshControl,
+  ScrollView,
+  Modal,
 } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Header } from '../components/Header';
@@ -31,14 +33,39 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
   const [loading, setLoading] = useState<boolean>(true);
   const [refreshing, setRefreshing] = useState<boolean>(false);
   const [error, setError] = useState<string | null>(null);
+
+  // Filters
   const [searchQuery, setSearchQuery] = useState<string>('');
-  const [selectedCategory, setSelectedCategory] = useState<string>('All');
+  const [selectedCategory, setSelectedCategory] = useState<string>('Smartphones');
+  const [selectedBrand, setSelectedBrand] = useState<string>('All');
+  const [selectedStorage, setSelectedStorage] = useState<string>('All');
+  const [selectedPriceRange, setSelectedPriceRange] = useState<string>('All');
+  const [isFilterModalVisible, setIsFilterModalVisible] = useState<boolean>(false);
   const [simulateErrorActive, setSimulateErrorActive] = useState<boolean>(false);
+
+  // Data-driven dynamic filter options
+  const availableBrands = useMemo(() => marketplaceRepository.getAvailableBrands(), []);
+  const availableStorageOptions = useMemo(() => marketplaceRepository.getAvailableStorageOptions(), []);
+
+  const activeFilterCount = useMemo(() => {
+    let count = 0;
+    if (selectedCategory !== 'Smartphones' && selectedCategory !== 'All') count++;
+    if (selectedBrand !== 'All') count++;
+    if (selectedStorage !== 'All') count++;
+    if (selectedPriceRange !== 'All') count++;
+    return count;
+  }, [selectedCategory, selectedBrand, selectedStorage, selectedPriceRange]);
 
   const loadProducts = useCallback(async () => {
     try {
       setError(null);
-      const data = await marketplaceRepository.getProducts(searchQuery, selectedCategory);
+      const data = await marketplaceRepository.getProducts(
+        searchQuery,
+        selectedCategory,
+        selectedBrand,
+        selectedStorage,
+        selectedPriceRange
+      );
       setProducts(data);
     } catch (err: any) {
       setError(err.message || 'Failed to load products.');
@@ -46,7 +73,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
       setLoading(false);
       setRefreshing(false);
     }
-  }, [searchQuery, selectedCategory]);
+  }, [searchQuery, selectedCategory, selectedBrand, selectedStorage, selectedPriceRange]);
 
   useEffect(() => {
     setLoading(true);
@@ -66,9 +93,17 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
     loadProducts();
   };
 
+  const handleResetFilters = () => {
+    setSearchQuery('');
+    setSelectedCategory('Smartphones');
+    setSelectedBrand('All');
+    setSelectedStorage('All');
+    setSelectedPriceRange('All');
+  };
+
   return (
     <View style={styles.container}>
-      {/* Header with error simulator test button */}
+      {/* Header with official logo & simulator test toggle */}
       <Header
         title="1Fi Marketplace"
         subtitle="Exclusive credit line & flexible EMI"
@@ -99,7 +134,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
         }
       />
 
-      {/* Search Input Bar */}
+      {/* Search Bar & Filter Action */}
       <View style={styles.searchSection}>
         <View style={styles.searchBar}>
           <Ionicons name="search-outline" size={18} color={Colors.textMuted} />
@@ -116,40 +151,123 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
             </TouchableOpacity>
           )}
         </View>
+
+        {/* Filter Modal Trigger Button */}
+        <TouchableOpacity
+          style={[
+            styles.filterTriggerBtn,
+            activeFilterCount > 0 && styles.filterTriggerBtnActive,
+          ]}
+          onPress={() => setIsFilterModalVisible(true)}
+          activeOpacity={0.8}
+        >
+          <Ionicons
+            name="options-outline"
+            size={20}
+            color={activeFilterCount > 0 ? '#FFFFFF' : Colors.primary}
+          />
+          {activeFilterCount > 0 && (
+            <View style={styles.badgeCircle}>
+              <Text style={styles.badgeText}>{activeFilterCount}</Text>
+            </View>
+          )}
+        </TouchableOpacity>
       </View>
 
-      {/* Category Pills */}
-      <View style={styles.categoryWrap}>
-        <FlatList
+      {/* Categories Horizontal Selector */}
+      <View style={styles.sectionPillWrap}>
+        <Text style={styles.pillSectionTitle}>Categories</Text>
+        <ScrollView
           horizontal
           showsHorizontalScrollIndicator={false}
-          data={CATEGORIES}
-          keyExtractor={(item) => item}
-          contentContainerStyle={styles.categoriesList}
-          renderItem={({ item }) => {
-            const isSelected = selectedCategory === item;
+          contentContainerStyle={styles.pillsList}
+        >
+          {CATEGORIES.map((cat) => {
+            const isSelected = selectedCategory === cat;
             return (
               <TouchableOpacity
-                style={[
-                  styles.categoryChip,
-                  isSelected && styles.categoryChipSelected,
-                ]}
-                onPress={() => setSelectedCategory(item)}
+                key={cat}
+                style={[styles.pillChip, isSelected && styles.pillChipSelected]}
+                onPress={() => setSelectedCategory(cat)}
                 activeOpacity={0.7}
               >
                 <Text
-                  style={[
-                    styles.categoryText,
-                    isSelected && styles.categoryTextSelected,
-                  ]}
+                  style={[styles.pillText, isSelected && styles.pillTextSelected]}
                 >
-                  {item}
+                  {cat}
                 </Text>
               </TouchableOpacity>
             );
-          }}
-        />
+          })}
+        </ScrollView>
       </View>
+
+      {/* Brands Horizontal Selector */}
+      <View style={styles.sectionPillWrap}>
+        <Text style={styles.pillSectionTitle}>Brands</Text>
+        <ScrollView
+          horizontal
+          showsHorizontalScrollIndicator={false}
+          contentContainerStyle={styles.pillsList}
+        >
+          {availableBrands.map((brand) => {
+            const isSelected = selectedBrand === brand;
+            return (
+              <TouchableOpacity
+                key={brand}
+                style={[styles.pillChip, isSelected && styles.pillChipSelected]}
+                onPress={() => setSelectedBrand(brand)}
+                activeOpacity={0.7}
+              >
+                <Text
+                  style={[styles.pillText, isSelected && styles.pillTextSelected]}
+                >
+                  {brand === 'All' ? 'All Brands' : brand}
+                </Text>
+              </TouchableOpacity>
+            );
+          })}
+        </ScrollView>
+      </View>
+
+      {/* Active Filter Chips Row */}
+      {activeFilterCount > 0 && (
+        <View style={styles.activeFiltersRow}>
+          <Text style={styles.activeFiltersLabel}>Filtered by:</Text>
+          {selectedBrand !== 'All' && (
+            <TouchableOpacity
+              style={styles.activeFilterPill}
+              onPress={() => setSelectedBrand('All')}
+            >
+              <Text style={styles.activeFilterPillText}>Brand: {selectedBrand}</Text>
+              <Ionicons name="close" size={14} color={Colors.primary} />
+            </TouchableOpacity>
+          )}
+          {selectedStorage !== 'All' && (
+            <TouchableOpacity
+              style={styles.activeFilterPill}
+              onPress={() => setSelectedStorage('All')}
+            >
+              <Text style={styles.activeFilterPillText}>Storage: {selectedStorage}</Text>
+              <Ionicons name="close" size={14} color={Colors.primary} />
+            </TouchableOpacity>
+          )}
+          {selectedPriceRange !== 'All' && (
+            <TouchableOpacity
+              style={styles.activeFilterPill}
+              onPress={() => setSelectedPriceRange('All')}
+            >
+              <Text style={styles.activeFilterPillText}>
+                {selectedPriceRange === 'under50k' ? '< ₹50k' : selectedPriceRange === '50kTo100k' ? '₹50k-₹1L' : '> ₹1L'}
+              </Text>
+              <Ionicons name="close" size={14} color={Colors.primary} />
+            </TouchableOpacity>
+          )}
+          <TouchableOpacity onPress={handleResetFilters}>
+            <Text style={styles.resetAllText}>Clear All</Text>
+          </TouchableOpacity>
+        </View>
+      )}
 
       {/* Main Content Area */}
       {loading && !refreshing ? (
@@ -183,16 +301,13 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           <Ionicons name="search" size={44} color={Colors.textMuted} />
           <Text style={styles.emptyTitle}>No products found</Text>
           <Text style={styles.emptySubtitle}>
-            Try checking spelling or search for another brand or model.
+            Try checking spelling or reset your filters.
           </Text>
           <TouchableOpacity
             style={styles.clearFilterBtn}
-            onPress={() => {
-              setSearchQuery('');
-              setSelectedCategory('All');
-            }}
+            onPress={handleResetFilters}
           >
-            <Text style={styles.clearFilterText}>Clear Search</Text>
+            <Text style={styles.clearFilterText}>Clear Search & Filters</Text>
           </TouchableOpacity>
         </View>
       ) : (
@@ -216,6 +331,124 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           )}
         />
       )}
+
+      {/* Data-Driven Filter Slide-Up Modal */}
+      <Modal
+        visible={isFilterModalVisible}
+        transparent
+        animationType="slide"
+        onRequestClose={() => setIsFilterModalVisible(false)}
+      >
+        <View style={styles.modalOverlay}>
+          <View style={styles.filterSheet}>
+            <View style={styles.sheetHeader}>
+              <Text style={styles.sheetTitle}>Filter Products</Text>
+              <TouchableOpacity onPress={() => setIsFilterModalVisible(false)}>
+                <Ionicons name="close" size={24} color={Colors.text} />
+              </TouchableOpacity>
+            </View>
+
+            <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.sheetContent}>
+              {/* Brand Filter */}
+              <Text style={styles.sheetSectionTitle}>Brand</Text>
+              <View style={styles.sheetWrapRow}>
+                {availableBrands.map((b) => (
+                  <TouchableOpacity
+                    key={b}
+                    style={[
+                      styles.sheetFilterChip,
+                      selectedBrand === b && styles.sheetFilterChipSelected,
+                    ]}
+                    onPress={() => setSelectedBrand(b)}
+                  >
+                    <Text
+                      style={[
+                        styles.sheetFilterChipText,
+                        selectedBrand === b && styles.sheetFilterChipTextSelected,
+                      ]}
+                    >
+                      {b === 'All' ? 'All Brands' : b}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Storage Filter */}
+              <Text style={styles.sheetSectionTitle}>Storage / RAM</Text>
+              <View style={styles.sheetWrapRow}>
+                {availableStorageOptions.map((st) => (
+                  <TouchableOpacity
+                    key={st}
+                    style={[
+                      styles.sheetFilterChip,
+                      selectedStorage === st && styles.sheetFilterChipSelected,
+                    ]}
+                    onPress={() => setSelectedStorage(st)}
+                  >
+                    <Text
+                      style={[
+                        styles.sheetFilterChipText,
+                        selectedStorage === st && styles.sheetFilterChipTextSelected,
+                      ]}
+                    >
+                      {st === 'All' ? 'All Capacities' : st}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+
+              {/* Price Range Filter */}
+              <Text style={styles.sheetSectionTitle}>Price Range</Text>
+              <View style={styles.sheetWrapRow}>
+                {[
+                  { id: 'All', label: 'All Prices' },
+                  { id: 'under50k', label: 'Under ₹50,000' },
+                  { id: '50kTo100k', label: '₹50,000 – ₹1,00,000' },
+                  { id: 'above100k', label: 'Above ₹1,00,000' },
+                ].map((pr) => (
+                  <TouchableOpacity
+                    key={pr.id}
+                    style={[
+                      styles.sheetFilterChip,
+                      selectedPriceRange === pr.id && styles.sheetFilterChipSelected,
+                    ]}
+                    onPress={() => setSelectedPriceRange(pr.id)}
+                  >
+                    <Text
+                      style={[
+                        styles.sheetFilterChipText,
+                        selectedPriceRange === pr.id && styles.sheetFilterChipTextSelected,
+                      ]}
+                    >
+                      {pr.label}
+                    </Text>
+                  </TouchableOpacity>
+                ))}
+              </View>
+            </ScrollView>
+
+            {/* Modal Actions */}
+            <View style={styles.sheetFooter}>
+              <TouchableOpacity
+                style={styles.sheetResetBtn}
+                onPress={() => {
+                  setSelectedBrand('All');
+                  setSelectedStorage('All');
+                  setSelectedPriceRange('All');
+                }}
+              >
+                <Text style={styles.sheetResetText}>Reset</Text>
+              </TouchableOpacity>
+              <TouchableOpacity
+                style={styles.sheetApplyBtn}
+                onPress={() => setIsFilterModalVisible(false)}
+              >
+                <Text style={styles.sheetApplyText}>Apply Filters</Text>
+              </TouchableOpacity>
+            </View>
+          </View>
+        </View>
+      </Modal>
     </View>
   );
 };
@@ -228,7 +461,7 @@ const styles = StyleSheet.create({
   errorToggleBtn: {
     flexDirection: 'row',
     alignItems: 'center',
-    paddingHorizontal: 8,
+    paddingHorizontal: 10,
     paddingVertical: 5,
     borderRadius: 8,
     backgroundColor: Colors.borderLight,
@@ -244,13 +477,18 @@ const styles = StyleSheet.create({
   },
   errorToggleTextActive: {
     color: '#FFFFFF',
+    fontWeight: '700',
   },
   searchSection: {
+    flexDirection: 'row',
+    alignItems: 'center',
     paddingHorizontal: 16,
     paddingTop: 12,
     paddingBottom: 6,
+    gap: 10,
   },
   searchBar: {
+    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     backgroundColor: Colors.cardBg,
@@ -266,14 +504,55 @@ const styles = StyleSheet.create({
     fontSize: 14,
     color: Colors.text,
   },
-  categoryWrap: {
-    paddingVertical: 8,
+  filterTriggerBtn: {
+    width: 44,
+    height: 44,
+    borderRadius: 12,
+    backgroundColor: Colors.cardBg,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+    position: 'relative',
   },
-  categoriesList: {
+  filterTriggerBtnActive: {
+    backgroundColor: Colors.primary,
+    borderColor: Colors.primary,
+  },
+  badgeCircle: {
+    position: 'absolute',
+    top: -4,
+    right: -4,
+    backgroundColor: Colors.danger,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeText: {
+    color: '#FFFFFF',
+    fontSize: 10,
+    fontWeight: '700',
+  },
+  sectionPillWrap: {
+    paddingTop: 6,
+    paddingBottom: 4,
+  },
+  pillSectionTitle: {
+    fontSize: 12,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    paddingHorizontal: 16,
+    marginBottom: 6,
+  },
+  pillsList: {
     paddingHorizontal: 16,
     gap: 8,
   },
-  categoryChip: {
+  pillChip: {
     paddingHorizontal: 14,
     paddingVertical: 7,
     borderRadius: 20,
@@ -281,18 +560,51 @@ const styles = StyleSheet.create({
     borderWidth: 1,
     borderColor: Colors.border,
   },
-  categoryChipSelected: {
+  pillChipSelected: {
     backgroundColor: Colors.primary,
     borderColor: Colors.primary,
   },
-  categoryText: {
+  pillText: {
     fontSize: 12,
     color: Colors.textSecondary,
     fontWeight: '600',
   },
-  categoryTextSelected: {
+  pillTextSelected: {
     color: '#FFFFFF',
     fontWeight: '700',
+  },
+  activeFiltersRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    flexWrap: 'wrap',
+    paddingHorizontal: 16,
+    paddingVertical: 6,
+    gap: 6,
+  },
+  activeFiltersLabel: {
+    fontSize: 11,
+    color: Colors.textSecondary,
+    fontWeight: '600',
+  },
+  activeFilterPill: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    backgroundColor: Colors.borderLight,
+    paddingHorizontal: 8,
+    paddingVertical: 4,
+    borderRadius: 6,
+    gap: 4,
+  },
+  activeFilterPillText: {
+    fontSize: 11,
+    color: Colors.primary,
+    fontWeight: '600',
+  },
+  resetAllText: {
+    fontSize: 11,
+    color: Colors.danger,
+    fontWeight: '700',
+    marginLeft: 4,
   },
   productsList: {
     padding: 16,
@@ -370,5 +682,108 @@ const styles = StyleSheet.create({
     fontSize: 12,
     fontWeight: '700',
     color: Colors.tealDark,
+  },
+  // Slide-up Filter Modal
+  modalOverlay: {
+    flex: 1,
+    backgroundColor: 'rgba(0,0,0,0.5)',
+    justifyContent: 'flex-end',
+  },
+  filterSheet: {
+    backgroundColor: Colors.cardBg,
+    borderTopLeftRadius: 24,
+    borderTopRightRadius: 24,
+    maxHeight: '75%',
+    paddingBottom: 24,
+  },
+  sheetHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingHorizontal: 20,
+    paddingTop: 18,
+    paddingBottom: 12,
+    borderBottomWidth: 1,
+    borderBottomColor: Colors.border,
+  },
+  sheetTitle: {
+    fontSize: 18,
+    fontWeight: '700',
+    color: Colors.text,
+  },
+  sheetContent: {
+    paddingHorizontal: 20,
+    paddingVertical: 14,
+  },
+  sheetSectionTitle: {
+    fontSize: 13,
+    fontWeight: '700',
+    color: Colors.textSecondary,
+    textTransform: 'uppercase',
+    letterSpacing: 0.5,
+    marginTop: 14,
+    marginBottom: 10,
+  },
+  sheetWrapRow: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: 8,
+  },
+  sheetFilterChip: {
+    paddingHorizontal: 14,
+    paddingVertical: 8,
+    borderRadius: 16,
+    backgroundColor: Colors.borderLight,
+    borderWidth: 1,
+    borderColor: 'transparent',
+  },
+  sheetFilterChipSelected: {
+    backgroundColor: '#EDE9FE',
+    borderColor: Colors.primary,
+  },
+  sheetFilterChipText: {
+    fontSize: 13,
+    color: Colors.textSecondary,
+    fontWeight: '500',
+  },
+  sheetFilterChipTextSelected: {
+    color: Colors.primary,
+    fontWeight: '700',
+  },
+  sheetFooter: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingHorizontal: 20,
+    paddingTop: 12,
+    borderTopWidth: 1,
+    borderTopColor: Colors.border,
+    gap: 12,
+  },
+  sheetResetBtn: {
+    flex: 1,
+    paddingVertical: 12,
+    borderRadius: 12,
+    borderWidth: 1,
+    borderColor: Colors.border,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetResetText: {
+    fontSize: 14,
+    fontWeight: '600',
+    color: Colors.textSecondary,
+  },
+  sheetApplyBtn: {
+    flex: 2,
+    backgroundColor: Colors.primary,
+    paddingVertical: 12,
+    borderRadius: 12,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  sheetApplyText: {
+    fontSize: 14,
+    fontWeight: '700',
+    color: '#FFFFFF',
   },
 });

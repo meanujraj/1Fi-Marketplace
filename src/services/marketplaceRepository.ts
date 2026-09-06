@@ -20,9 +20,28 @@ export class MarketplaceRepository {
     return input.slice(0, 100).replace(/[^\w\s\-\+\.\(\)]/gi, '').trim();
   }
 
-  // Fetch all products with input validation and simulated network latency
-  public async getProducts(rawSearchQuery = '', rawCategory = 'All'): Promise<Product[]> {
-    await new Promise((resolve) => setTimeout(resolve, 400));
+  public getAvailableBrands(): string[] {
+    const brands = Array.from(new Set(MOCK_PRODUCTS.map((p) => p.brand)));
+    return ['All', ...brands];
+  }
+
+  public getAvailableStorageOptions(): string[] {
+    const storageSet = new Set<string>();
+    MOCK_PRODUCTS.forEach((p) => {
+      p.storageOptions.forEach((s) => storageSet.add(s.label));
+    });
+    return ['All', ...Array.from(storageSet)];
+  }
+
+  // Fetch all products with input validation, multi-facet filtering and simulated latency
+  public async getProducts(
+    rawSearchQuery = '',
+    rawCategory = 'All',
+    rawBrand = 'All',
+    rawStorage = 'All',
+    rawPriceRange = 'All'
+  ): Promise<Product[]> {
+    await new Promise((resolve) => setTimeout(resolve, 300));
 
     if (this.shouldSimulateError) {
       throw new Error('Unable to connect to 1Fi Marketplace server. Please try again.');
@@ -30,13 +49,38 @@ export class MarketplaceRepository {
 
     const searchQuery = this.sanitizeInput(rawSearchQuery).toLowerCase();
     const category = ALLOWED_CATEGORIES.includes(rawCategory) ? rawCategory : 'All';
+    const brand = this.sanitizeInput(rawBrand);
+    const storage = this.sanitizeInput(rawStorage);
 
     let filtered = [...MOCK_PRODUCTS];
 
+    // Filter by Category
     if (category !== 'All') {
       filtered = filtered.filter((p) => p.category.toLowerCase() === category.toLowerCase());
     }
 
+    // Filter by Brand
+    if (brand && brand !== 'All') {
+      filtered = filtered.filter((p) => p.brand.toLowerCase() === brand.toLowerCase());
+    }
+
+    // Filter by Storage
+    if (storage && storage !== 'All') {
+      filtered = filtered.filter((p) =>
+        p.storageOptions.some((s) => s.label.toLowerCase() === storage.toLowerCase())
+      );
+    }
+
+    // Filter by Price Range
+    if (rawPriceRange === 'under50k') {
+      filtered = filtered.filter((p) => p.basePrice < 50000);
+    } else if (rawPriceRange === '50kTo100k') {
+      filtered = filtered.filter((p) => p.basePrice >= 50000 && p.basePrice <= 100000);
+    } else if (rawPriceRange === 'above100k') {
+      filtered = filtered.filter((p) => p.basePrice > 100000);
+    }
+
+    // Search query matching
     if (searchQuery.length > 0) {
       filtered = filtered.filter((p) => {
         const inBasic =
