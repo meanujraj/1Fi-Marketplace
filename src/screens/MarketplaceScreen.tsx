@@ -110,26 +110,16 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
         onBack={onBack}
         rightAction={
           <TouchableOpacity
-            style={[
-              styles.errorToggleBtn,
-              simulateErrorActive && styles.errorToggleBtnActive,
-            ]}
+            style={styles.errorToggleBtn}
             onPress={toggleErrorSimulation}
             activeOpacity={0.7}
+            accessibilityLabel="Test Error State"
           >
             <Ionicons
               name={simulateErrorActive ? 'warning' : 'bug-outline'}
-              size={16}
-              color={simulateErrorActive ? '#FFFFFF' : Colors.textSecondary}
+              size={18}
+              color={simulateErrorActive ? Colors.danger : Colors.textMuted}
             />
-            <Text
-              style={[
-                styles.errorToggleText,
-                simulateErrorActive && styles.errorToggleTextActive,
-              ]}
-            >
-              {simulateErrorActive ? 'Simulated Error' : 'Test Error'}
-            </Text>
           </TouchableOpacity>
         }
       />

@@ -26,14 +26,8 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
       onPress={onPress}
       activeOpacity={0.88}
     >
-      {/* Product Image Area with Badge */}
+      {/* Product Image Area */}
       <View style={styles.imageArea}>
-        {product.badge ? (
-          <View style={styles.badge}>
-            <Text style={styles.badgeText}>{product.badge}</Text>
-          </View>
-        ) : null}
-
         <Image
           source={primaryImage}
           style={styles.image}
@@ -41,9 +35,9 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
         />
       </View>
 
-      {/* Card Content Details */}
+      {/* Card Content */}
       <View style={styles.content}>
-        {/* Brand & Ratings Row */}
+        {/* Brand & Ratings */}
         <View style={styles.brandRow}>
           <Text style={styles.brandText}>{product.brand}</Text>
           <View style={styles.ratingBox}>
@@ -51,7 +45,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
             <Text style={styles.ratingVal}>{product.rating.toFixed(1)}</Text>
             {product.reviewCount ? (
               <Text style={styles.ratingCount}>
-                | {product.reviewCount > 999 ? `${(product.reviewCount / 1000).toFixed(1)}k` : product.reviewCount} ratings
+                ({product.reviewCount > 999 ? `${(product.reviewCount / 1000).toFixed(1)}k` : product.reviewCount})
               </Text>
             ) : null}
           </View>
@@ -62,7 +56,7 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
           {product.name}
         </Text>
 
-        {/* Short Specs / Tagline */}
+        {/* Key Model Spec */}
         <Text style={styles.tagline} numberOfLines={1}>
           {product.tagline}
         </Text>
@@ -77,33 +71,30 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
           ) : null}
           {product.discountPercent > 0 ? (
             <View style={styles.discountPill}>
-              <Text style={styles.discountText}>{product.discountPercent}% OFF</Text>
+              <Text style={styles.discountText}>{product.discountPercent}% off</Text>
             </View>
           ) : null}
         </View>
 
-        {/* EMI Highlight Banner */}
-        <View style={styles.emiBanner}>
-          <View style={styles.emiFlashCircle}>
-            <Ionicons name="flash" size={13} color="#059669" />
-          </View>
-          <View style={styles.emiTextWrap}>
-            <Text style={styles.emiPretext}>From</Text>
-            <Text style={styles.emiPrice}>
-              ₹{(product.startingEmi || lowestEmiPlan.monthlyAmount).toLocaleString('en-IN')}/month
+        {/* 1Fi-Styled Authentic EMI Pill */}
+        <View style={styles.emiPillRow}>
+          <View style={styles.emiPill}>
+            <Text style={styles.emiPillLabel}>EMI from</Text>
+            <Text style={styles.emiPillAmount}>
+              ₹{(product.startingEmi || lowestEmiPlan.monthlyAmount).toLocaleString('en-IN')}/mo
             </Text>
           </View>
           {lowestEmiPlan.isNoCost && (
-            <View style={styles.noCostBadge}>
+            <View style={styles.noCostPill}>
               <Text style={styles.noCostText}>0% Interest</Text>
             </View>
           )}
         </View>
 
-        {/* Action Button matching 1Fi style */}
+        {/* 1Fi Rounded-Full Primary Action */}
         <View style={styles.actionBtn}>
           <Text style={styles.actionBtnText}>View Product</Text>
-          <Ionicons name="arrow-forward" size={14} color="#FFFFFF" />
+          <Ionicons name="chevron-forward" size={15} color="#FFFFFF" />
         </View>
       </View>
     </TouchableOpacity>
@@ -113,50 +104,33 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
 const styles = StyleSheet.create({
   card: {
     backgroundColor: '#FFFFFF',
-    borderRadius: 16,
-    borderWidth: 1,
-    borderColor: '#E5E7EB',
+    borderRadius: 18,
+    borderWidth: 0.8,
+    borderColor: '#E4E4E7',
     marginBottom: 16,
     overflow: 'hidden',
-    shadowColor: '#000000',
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.06,
-    shadowRadius: 10,
+    shadowColor: 'rgba(20, 14, 50, 0.04)',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 1,
+    shadowRadius: 6,
     elevation: 2,
   },
   imageArea: {
     width: '100%',
-    height: 190,
-    backgroundColor: '#FBFBFE',
+    height: 180,
+    backgroundColor: '#FFFFFF',
     alignItems: 'center',
     justifyContent: 'center',
-    position: 'relative',
     padding: 16,
-    borderBottomWidth: 1,
-    borderBottomColor: '#F3F4F6',
-  },
-  badge: {
-    position: 'absolute',
-    top: 12,
-    left: 12,
-    backgroundColor: '#712CDC',
-    paddingHorizontal: 8,
-    paddingVertical: 4,
-    borderRadius: 6,
-    zIndex: 2,
-  },
-  badgeText: {
-    color: '#FFFFFF',
-    fontSize: 10,
-    fontWeight: '700',
-    letterSpacing: 0.4,
+    borderBottomWidth: 0.8,
+    borderBottomColor: '#F4F4F5',
   },
   image: {
     width: '100%',
     height: '100%',
   },
   content: {
-    padding: 16,
+    padding: 14,
   },
   brandRow: {
     flexDirection: 'row',
@@ -166,8 +140,8 @@ const styles = StyleSheet.create({
   },
   brandText: {
     fontSize: 11,
-    color: '#6B7280',
-    fontWeight: '700',
+    color: '#71717A',
+    fontWeight: '600',
     textTransform: 'uppercase',
     letterSpacing: 0.6,
   },
@@ -179,97 +153,92 @@ const styles = StyleSheet.create({
   ratingVal: {
     fontSize: 12,
     fontWeight: '700',
-    color: '#92400E',
+    color: '#18181B',
   },
   ratingCount: {
     fontSize: 11,
-    color: '#9CA3AF',
+    color: '#71717A',
     fontWeight: '500',
   },
   title: {
-    fontSize: 17,
-    fontWeight: '700',
-    color: '#111827',
+    fontSize: 16,
+    fontWeight: '600',
+    color: '#18181B',
     marginBottom: 2,
   },
   tagline: {
-    fontSize: 12,
-    color: '#6B7280',
-    marginBottom: 12,
+    fontSize: 12.5,
+    color: '#71717A',
+    marginBottom: 10,
   },
   priceRow: {
     flexDirection: 'row',
-    alignItems: 'center',
+    alignItems: 'baseline',
     marginBottom: 10,
   },
   price: {
-    fontSize: 19,
-    fontWeight: '800',
-    color: '#111827',
+    fontSize: 18,
+    fontWeight: '700',
+    color: '#18181B',
   },
   originalPrice: {
     fontSize: 13,
-    color: '#9CA3AF',
+    color: '#A1A1AA',
     textDecorationLine: 'line-through',
     marginLeft: 8,
   },
   discountPill: {
-    backgroundColor: '#DEF7EC',
-    paddingHorizontal: 6,
+    backgroundColor: '#F5F0FF',
+    borderWidth: 0.8,
+    borderColor: '#ECE5FF',
+    paddingHorizontal: 7,
     paddingVertical: 2,
-    borderRadius: 4,
+    borderRadius: 9999,
     marginLeft: 8,
   },
   discountText: {
-    color: '#03543F',
-    fontSize: 10,
+    color: '#5C22A5',
+    fontSize: 10.5,
     fontWeight: '700',
   },
-  emiBanner: {
+  emiPillRow: {
     flexDirection: 'row',
     alignItems: 'center',
-    backgroundColor: '#ECFDF5',
-    borderWidth: 1,
-    borderColor: '#D1FAE5',
-    paddingHorizontal: 10,
-    paddingVertical: 7,
-    borderRadius: 10,
-    marginBottom: 14,
     gap: 6,
+    marginBottom: 12,
   },
-  emiFlashCircle: {
-    width: 22,
-    height: 22,
-    borderRadius: 11,
-    backgroundColor: '#D1FAE5',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  emiTextWrap: {
+  emiPill: {
     flexDirection: 'row',
     alignItems: 'center',
-    flex: 1,
+    backgroundColor: '#F5F0FF',
+    borderWidth: 0.8,
+    borderColor: '#ECE5FF',
+    paddingHorizontal: 10,
+    paddingVertical: 5,
+    borderRadius: 9999,
     gap: 4,
   },
-  emiPretext: {
+  emiPillLabel: {
     fontSize: 11,
-    color: '#065F46',
+    color: '#5C22A5',
     fontWeight: '500',
   },
-  emiPrice: {
-    fontSize: 13,
+  emiPillAmount: {
+    fontSize: 12,
     fontWeight: '700',
-    color: '#065F46',
+    color: '#5C22A5',
   },
-  noCostBadge: {
-    backgroundColor: '#059669',
-    paddingHorizontal: 6,
-    paddingVertical: 2,
-    borderRadius: 4,
+  noCostPill: {
+    backgroundColor: '#ECFDF5',
+    borderWidth: 0.8,
+    borderColor: '#D1FAE5',
+    paddingHorizontal: 8,
+    paddingVertical: 5,
+    borderRadius: 9999,
   },
   noCostText: {
-    color: '#FFFFFF',
-    fontSize: 10,
+    color: '#059669',
+    fontSize: 11,
     fontWeight: '700',
   },
   actionBtn: {
@@ -277,13 +246,13 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
     backgroundColor: '#712CDC',
-    paddingVertical: 11,
-    borderRadius: 10,
-    gap: 6,
+    height: 44,
+    borderRadius: 9999,
+    gap: 4,
   },
   actionBtnText: {
     color: '#FFFFFF',
-    fontSize: 13,
+    fontSize: 13.5,
     fontWeight: '700',
   },
 });
