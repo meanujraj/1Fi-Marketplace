@@ -38,13 +38,23 @@ export class MarketplaceRepository {
     }
 
     if (searchQuery.length > 0) {
-      filtered = filtered.filter(
-        (p) =>
+      filtered = filtered.filter((p) => {
+        const inBasic =
           p.name.toLowerCase().includes(searchQuery) ||
           p.brand.toLowerCase().includes(searchQuery) ||
           p.category.toLowerCase().includes(searchQuery) ||
-          (p.exactModel && p.exactModel.toLowerCase().includes(searchQuery))
-      );
+          (p.exactModel && p.exactModel.toLowerCase().includes(searchQuery)) ||
+          (p.asin && p.asin.toLowerCase().includes(searchQuery));
+
+        const inColors = p.colors?.some((c) => c.name.toLowerCase().includes(searchQuery));
+        const inStorage = p.storageOptions?.some(
+          (s) =>
+            s.label.toLowerCase().includes(searchQuery) ||
+            (s.ram && s.ram.toLowerCase().includes(searchQuery))
+        );
+
+        return inBasic || inColors || inStorage;
+      });
     }
 
     return filtered;

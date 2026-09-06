@@ -45,6 +45,11 @@ export const ProductCard: React.FC<ProductCardProps> = ({ product, onPress }) =>
           <View style={styles.ratingBadge}>
             <Ionicons name="star" size={11} color="#F59E0B" />
             <Text style={styles.ratingText}>{product.rating.toFixed(1)}</Text>
+            {product.reviewCount ? (
+              <Text style={styles.reviewCountText}>
+                ({product.reviewCount > 999 ? `${(product.reviewCount / 1000).toFixed(1)}k` : product.reviewCount})
+              </Text>
+            ) : null}
           </View>
         </View>
 
@@ -163,6 +168,11 @@ const styles = StyleSheet.create({
     fontSize: 11,
     fontWeight: '700',
     color: '#92400E',
+  },
+  reviewCountText: {
+    fontSize: 10,
+    fontWeight: '500',
+    color: '#B45309',
   },
   productName: {
     fontSize: 16,

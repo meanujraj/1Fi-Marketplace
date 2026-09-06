@@ -105,7 +105,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
           <Ionicons name="search-outline" size={18} color={Colors.textMuted} />
           <TextInput
             style={styles.searchInput}
-            placeholder="Search iPhone, MacBook, Galaxy..."
+            placeholder="Search products, brands or models..."
             placeholderTextColor={Colors.textMuted}
             value={searchQuery}
             onChangeText={setSearchQuery}
@@ -181,9 +181,9 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
       ) : products.length === 0 ? (
         <View style={styles.centerState}>
           <Ionicons name="search" size={44} color={Colors.textMuted} />
-          <Text style={styles.emptyTitle}>No matching products</Text>
+          <Text style={styles.emptyTitle}>No products found</Text>
           <Text style={styles.emptySubtitle}>
-            Try changing your search term or category filter.
+            Try checking spelling or search for another brand or model.
           </Text>
           <TouchableOpacity
             style={styles.clearFilterBtn}
@@ -192,7 +192,7 @@ export const MarketplaceScreen: React.FC<MarketplaceScreenProps> = ({
               setSelectedCategory('All');
             }}
           >
-            <Text style={styles.clearFilterText}>Reset Filters</Text>
+            <Text style={styles.clearFilterText}>Clear Search</Text>
           </TouchableOpacity>
         </View>
       ) : (
